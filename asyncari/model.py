@@ -208,7 +208,8 @@ class BaseObject(object):
             # assume that the most-current event has the most-current JSON
             self.json.update(json)
         if self.id is not None:
-            assert client == self.client
+            # assert client == self.client
+            self.client = client
             return
         if id is None:
             id = self.id_generator.id_as_str(json)
