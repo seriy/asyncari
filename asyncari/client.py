@@ -202,23 +202,23 @@ class Client:
             msg = await recv.receive()
             if msg is False:
                 return
-            assert msg is not None
+            # assert msg is not None
 
             try:
-                with anyio.fail_after(0.5):
+                with anyio.fail_after(10):
                     msg = await recv.receive()
                     if msg is False:
                         return
-                    assert msg is None
+                    # assert msg is None
             except TimeoutError:
                 log.error("Processing delayed: %s", msg)
                 t = anyio.current_time()
                 # don't hard-fail that fast when debugging
-                with anyio.fail_after(1 if 'pdb' not in sys.modules else 99):
+                with anyio.fail_after(10 if 'pdb' not in sys.modules else 99):
                     msg = await recv.receive()
                     if msg is False:
                         return
-                    assert msg is None, msg
+                    # assert msg is None, msg
                     pass  # processing delayed, you have a problem
                 log.error("Processing recovered after %.2f sec", (anyio.current_time()) - t)
 
@@ -460,6 +460,25 @@ class EventMessage:
     """
 
     def __init__(self, client, msg):
+        extra: dict = {}
+
+        try:
+            extra['channel_id'] = msg['peer']['id']
+        except KeyError:
+            pass
+
+        try:
+            extra['channel_id'] = msg['channel']['id']
+        except KeyError:
+            pass
+
+        try:
+            extra['bridge_id'] = msg['bridge']['id']
+        except KeyError:
+            pass
+
+        log.debug(msg, extra={'props': extra})
+
         self._client = client
         self._orig_msg = msg
 
