@@ -205,7 +205,7 @@ class Client:
             # assert msg is not None
 
             try:
-                with anyio.fail_after(10):
+                with anyio.fail_after(15):
                     msg = await recv.receive()
                     if msg is False:
                         return
@@ -214,7 +214,7 @@ class Client:
                 log.error("Processing delayed: %s", msg)
                 t = anyio.current_time()
                 # don't hard-fail that fast when debugging
-                with anyio.fail_after(10 if 'pdb' not in sys.modules else 99):
+                with anyio.fail_after(15 if 'pdb' not in sys.modules else 99):
                     msg = await recv.receive()
                     if msg is False:
                         return
